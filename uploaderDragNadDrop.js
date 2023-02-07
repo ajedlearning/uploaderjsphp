@@ -1,6 +1,6 @@
 const d = document,
   $main = d.querySelector("main"),
-  $files = d.getElementById("files");
+  $dronZone = d.querySelector(".drop-zone");
 
 const uploader = (file) => {
   // console.log(file);
@@ -40,26 +40,34 @@ const progressUpload = (file) => {
 
   fileReaader.addEventListener("progress", (e) => {
     //console.log(e);
-    let progress = parseInt((e.loaded *100)/e.total);
+    let progress = parseInt((e.loaded * 100) / e.total);
     $progress.value = progress;
-    $span.innerHTML = `<b>${file.name} - ${progress} %</b>`
+    $span.innerHTML = `<b>${file.name} - ${progress} %</b>`;
   });
   fileReaader.addEventListener("loadend", (e) => {
     uploader(file);
-    setTimeout(()=>{
+    setTimeout(() => {
       $main.removeChild($progress);
       $main.removeChild($span);
-      $files.value = "";
-    },3000)
-  })
+      
+    }, 3000);
+  });
 };
 
-d.addEventListener("change", (e) => {
-  if (e.target === $files) {
-    console.log(e.target.files);
-    const files = Array.from(e.target.files);
-    files.forEach((el) => {
-      progressUpload(el);
-    });
-  }
+$dronZone.addEventListener("dragover", (e) => {
+  //console.log("finooooo");
+  e.preventDefault();
+  e.stopPropagation();
+  e.target.classList.add("is-active");
+});
+
+$dronZone.addEventListener("dragleave", (e) => {
+  e.target.classList.remove("is-active");
+});
+$dronZone.addEventListener("drop", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  const files = Array.from(e.dataTransfer.files);
+  files.forEach((el) => progressUpload(el));
+  e.target.classList.remove("is-active");
 });
